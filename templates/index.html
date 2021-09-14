@@ -1,0 +1,19 @@
+<!doctype html>
+<head>
+	<!-- <link rel="stylesheet" href="/static/style.css"> -->
+	<title>
+		Local print server
+	</title>
+</head>
+<body>
+	<div style="font-size: 36pt; color: red;">{{ state }}</div>
+	<form action="" method="POST">
+		Team name: <input type="text" name="team" style="width: 10%" value="{{ team }}"><br>
+		Lang: <select name="lang">
+			<option value="cpp"{% if lang=='cpp' %} selected{% endif %}>C++</option>
+			<option value="python"{% if lang=='python' %} selected{% endif %}>Python</option>
+		</select><br>
+		<textarea name="code" placeholder="Your code here" style="width: 80%; resize: none" rows=20></textarea><br>
+		<button type="submit" name="print">Print</button>
+	</form>
+</body>
