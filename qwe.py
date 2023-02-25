@@ -6,8 +6,6 @@ import uuid
 from os import path, makedirs
 
 
-makedirs("codes", exist_ok=True)
-makedirs("pdfs", exist_ok=True)
 app = Flask(__name__)
 app.secret_key = "hui"
 
@@ -16,18 +14,25 @@ def create_pdf(code, team, lang):
 	filename = str(uuid.uuid4())
 	open(path.join("codes", filename + ".txt"), "w").write(code)
 	print("running enscript...")
-	p = sp.run(["enscript", path.join("codes", filename + ".txt"), "-E" + lang, "-b", "{}: page $% of $=".format(team), "-C", "--color", "-o", path.join("pdfs", filename + ".pdf")])
+	p = sp.run(["enscript", path.join("codes", filename + ".txt"), "-E" + lang, "-b", "{}: page $% of $=".format(team), "-C", "--color", "-o", path.join("pdfs", filename + ".ps")])
 	if p.returncode:
 		print("error")
 		print(p.stderr.decode())
 	else:
 		print("ok enscript ran successfully")
 		print("filename is", filename)
+		p = sp.run(["ps2pdf", path.join("pdfs", filename + ".ps")])
 		return path.join("pdfs", filename + ".pdf")
 
 
 def print_file(filename):
-	pass
+	print("brrr printing {}...".format(filename))
+	p = sp.run(["PDFtoPrinter", filename], stderr=sp.PIPE)
+	if p.returncode:
+		print("error")
+		print(p.stderr.decode())
+	else:
+		print("ok printed")
 
 
 def print_code(code, team, lang):
@@ -56,3 +61,7 @@ def index():
 	team = session.get("team", "")
 	return render_template("index.html", state=state, lang=lang, team=team)
 
+if __name__ == "__main__":
+	makedirs("codes", exist_ok=True)
+	makedirs("pdfs", exist_ok=True)
+	app.run(host="0.0.0.0", port=8080)
